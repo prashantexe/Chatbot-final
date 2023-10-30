@@ -1,9 +1,6 @@
-from chatterbot import ChatBot
 from flask import Flask, render_template, request
-from chatterbot.trainers import ListTrainer, ChatterBotCorpusTrainer
-
-chatbot = ChatBot("ChatBot")
 app = Flask(__name__)
+from datas import chat_datas
 
 conversation = [
     "Hello",
@@ -32,13 +29,22 @@ conversation = [
     "What's the tallest mountain in the world?",
     "The tallest mountain in the world is Mount Everest.",
 ]
-
-
-trainer = ListTrainer(chatbot)
-trainer.train(conversation)
-trainer_corpus = ChatterBotCorpusTrainer(chatbot)
-trainer_corpus.train("chatterbot.corpus.english")
-
+conversation.extend(chat_datas)
+def Give_Replay(qus):
+    dic_set = {}
+    for i in range(0,len(conversation),2):
+        try:
+            dic_set[conversation[i]] = conversation[i+1]
+            print(conversation[i+1])
+        except:
+            print("Last Data..")
+    message = dic_set.get(qus)
+    if message:
+        return message
+    else:
+        return "Try with different Question :)"
+    
+    
 
 @app.route("/")
 def home():
@@ -48,7 +54,7 @@ def home():
 @app.route("/get")
 def get_bot_response():
     userText = request.args.get("msg")
-    return str(chatbot.get_response(userText))
+    return str(Give_Replay(userText))
 
 
 app.run(debug=True)
